@@ -47,8 +47,8 @@ const StudentHomeHeader = ({menuStyle , setMenustyle,setHasNavigated}) => {
           <div className="menu-item ">
           <ul className='list-unstyled '>
           <li><section onClick={()=>{}} className='d-flex align-items-center'><ImProfile className='fs-4 me-2'/>Profile details</section> </li>
-          <li><section onClick={()=>{}} className='d-flex align-items-center'><CiLogout className='fs-4 me-2'/>Log Out</section> </li>
-          <li><section onClick={()=>{}} className='d-flex align-items-center'><CiLogout className='fs-4 me-2'/>Log Out</section> </li>
+          {/* <li><section onClick={()=>{}} className='d-flex align-items-center'><CiLogout className='fs-4 me-2'/>Log Out</section> </li>
+          <li><section onClick={()=>{}} className='d-flex align-items-center'><CiLogout className='fs-4 me-2'/>Log Out</section> </li> */}
           <li><section onClick={()=>{logOutUser(isLogin.userType),setHasNavigated(false)}} className='d-flex align-items-center'><CiLogout className='fs-4 me-2'/>Log Out</section> </li>
         </ul>             
           </div>
