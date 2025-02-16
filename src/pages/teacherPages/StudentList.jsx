@@ -87,7 +87,10 @@ const StudentList = () => {
     handleClose();
     let res = await addTheStudent(studentid);
     if (res.$id) {
+      localStorage.removeItem("students");
+      localStorage.removeItem("classes");
       listingStudents();
+      
     } else {
       console.log("error while adding");
     }
@@ -97,6 +100,8 @@ const StudentList = () => {
     setConformPopShow(false);
     let res = await removeStudent(id);
     if (res) {
+      localStorage.removeItem("students");
+      localStorage.removeItem("classes");
       listingStudents();
     }
   };
