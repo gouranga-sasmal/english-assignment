@@ -27,7 +27,7 @@ const ContextProvider = ({children}) => {
   const registerUser = async (userDetails)=>{
    let res = await register(userDetails);
    console.log(res);
-   localStorage.setItem('currentUser',JSON.stringify({id:res.$id,degree:res.degree,name:res.name,phone:res.phone,userType:userDetails.userType,}))
+   localStorage.setItem('currentUser',JSON.stringify({id:res.$id,degree:res.degree,name:res.name,phone:res.phone,userType:userDetails.userType,class:res.class}))
    setUser()
 
   }

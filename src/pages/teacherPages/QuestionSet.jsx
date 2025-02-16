@@ -34,7 +34,8 @@ console.log();
           {question.map((ques ,index)=>{
             return <li key={index} className='my-4 '>
               <div className="card shadow  text-start p-3">
-                <p>{index+1}: {ques.question}</p>
+                {/* <p>{index+1}: {ques.question}</p> */}
+                <div dangerouslySetInnerHTML={{ __html: index+1 + ': ' + ques.question }} />
                 <ol>
                   {ques.options.map((opt ,index)=>{
                     let correctans = opt.answer_text == ques.correctAnswer.answer_text;

@@ -96,8 +96,8 @@ const QuestionCard = ({allQuestions,getScore,showcorrectAns}) => {
         return <SwiperSlide key={i} className=''><div  className="card text-start shadow p-3 ">
           <div className="ques ">
           {/* <span className='qn'></span> */}
-            <h5>{i+1}. {ques.question
-            }</h5>
+            {/* <h5>{i+1}. {ques.question}</h5> */}
+            <div dangerouslySetInnerHTML={{ __html: i+1 + '. ' + ques.question }} />
           </div>
           <div className="opt ">
             <ul className='p-0 '>

@@ -14,59 +14,72 @@ const [loading , setLoading] = useState(true)
 const {getingAssignments ,isLogin,getDeatails,getBookChapters}= useContext(context);
 
 
-const getAssignments = async () =>{
-  setLoading(true)
-const response = await getingAssignments([
-  Query.equal("studentId", isLogin.id),
-  Query.isNull("completedDate")
-])
-if(response && response.total>0){
-   const commonTeacherId = findUniqueValues(response.documents,'teacherId',false)
-   const commonChapter = findUniqueValues(response.documents,'chapterId',true)
-   let mainArr;
+const getAssignments = async () => {
+  setLoading(true);
+  const response = await getingAssignments([
+    Query.equal("studentId", isLogin.id),
+    Query.isNull("completedDate"),
+  ]);
+  if (response && response.total > 0) {
+    const commonTeacherId = findUniqueValues(
+      response.documents,
+      "teacherId",
+      false
+    );
+    const commonChapter = findUniqueValues(
+      response.documents,
+      "chapterId",
+      true
+    );
+    let mainArr;
 
-
-   const getdocDeatils= async()=>{
-     let res = await getDeatails([Query.equal("$id",commonTeacherId)])
-     let res2 = await getBookChapters([
-      Query.equal("chapterId", commonChapter),
-      Query.equal("classId", JSON.parse(isLogin.class))
-    ])
-     if(res && res2 &&res.total>0 &&res2.total>0){
-      let teacherDetails = res.documents; 
-      let chapterDetails = res2.documents;
-      mainArr =response.documents.map((item)=>{
-        const {name} = teacherDetails.find((teacher)=>{
-          return (teacher.$id == item.teacherId)
-        })
-        const {chapterName} = chapterDetails.find((chapter)=>{
-          return (chapter.chapterId == item.chapterId
-          )
-        })
-        return{...item ,teacherName:name,chapterName}
+    const getdocDeatils = async () => {
+      try {
+        let res = await getDeatails([Query.equal("$id", commonTeacherId)]);
+      let res2 = await getBookChapters([
+        Query.equal("chapterId", commonChapter),
+        Query.equal("classId", JSON.parse(isLogin.class)),
+      ]);
+      if (res && res2 && res.total > 0 && res2.total > 0) {
+        console.log(res)
+        let teacherDetails = res.documents;
+        let chapterDetails = res2.documents;
+        mainArr = response.documents.map((item) => {
+          const { name } = teacherDetails.find((teacher) => {
+            return teacher.$id == item.teacherId;
+          });
+          const { chapterName } = chapterDetails.find((chapter) => {
+            return chapter.chapterId == item.chapterId;
+          });
+          return { ...item, teacherName: name, chapterName };
+        });
+      } else {
+        //TODO: No Assignments
+        //TODO: Add a refresh button. Title : 'Refresh'
+        // toast.error("error while getting deatail please retry")
+        setLoading(false);
+      }
+      } catch (error) {
+        console.log(error)
+        setLoading(false);
+      }
+      
+    };
+    try {
+      await getdocDeatils();
+      setAssignments(mainArr.reverse());
+      setLoading(false);
+    } catch (error) {
+      console.log(error)
+      setLoading(false);
+    }
     
-       })
-     }  
-     else{
-      //TODO: No Assignments
-      //TODO: Add a refresh button. Title : 'Refresh'
-      // toast.error("error while getting deatail please retry")
-      setLoading(false)
-
-     }
-   }
-   
-    await getdocDeatils()
-     setAssignments(mainArr.reverse())
-     setLoading(false)
-}
-else{
-  //TODO: No Assignments
-  // toast.error("there is no asignment")
-  setLoading(false)
-
-}
-}
+  } else {
+    //TODO: No Assignments
+    // toast.error("there is no asignment")
+    setLoading(false);
+  }
+};
 
 
 useEffect(()=>{
