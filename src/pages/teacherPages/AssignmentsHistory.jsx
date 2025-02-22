@@ -18,6 +18,7 @@ const Assignments = () => {
     isLogin,
     getAllClass,
     fetchQuestionSetByQuestionSetIds,
+    getBookChapters
   } = useContext(context);
   const { listAllStudents } = useContext(context);
   const [formattedAssignments, setFormattedAssignments] = useState([]);
@@ -69,6 +70,20 @@ const Assignments = () => {
     }
   };
 
+  const fetchChapters = async (classIds) => {
+    const uniqueClassIds = [...new Set(classIds)];
+    const lChapterObjs = localStorage.getItem("chapters");
+    const lChapters = lChapterObjs ? JSON.parse(lChapterObjs) : [];
+    const lChapterIds = lChapters.map((chapter) => chapter.classId);
+    const isContained = uniqueClassIds.every((id) => lChapterIds.includes(id));
+    console.log(uniqueClassIds);
+    if (lChapterIds.length == 0 || !isContained) {
+      const querys = Query.equal("classId", [JSON.parse(uniqueClassIds)])
+      const allChapters = await getBookChapters([querys])
+      localStorage.setItem("chapters", JSON.stringify(allChapters.documents));
+    }
+  };
+
   const getAssignmentAndFormatData = async () => {
     setLoading(true);
     const response = await getAssignment();
@@ -83,15 +98,19 @@ const Assignments = () => {
       ids.questionSetIds
     );
     await fetchStudentAndClass(ids.students.map((student) => student.id));
+    await fetchChapters(ids.classIds);
     const lStudentObjs = localStorage.getItem("students");
     const lStudents = lStudentObjs ? JSON.parse(lStudentObjs) : [];
     const lClassObjs = localStorage.getItem("classes");
     const lClass = lClassObjs ? JSON.parse(lClassObjs) : [];
+    const lChapterObjs = localStorage.getItem("chapters");
+    const lChapters = lChapterObjs ? JSON.parse(lChapterObjs) : [];
 
     const formattedResponse = formatResponse(
       assignments,
       lStudents,
       lClass,
+      lChapters,
       questionSetDetails.documents
     );
     setLoading(false);
@@ -114,6 +133,7 @@ const Assignments = () => {
     response,
     studentsData,
     classesData,
+    chaptersData,
     questionSetData
   ) => {
     const formattedResponse = {};
@@ -141,11 +161,17 @@ const Assignments = () => {
         const questionSet = questionSetData.find(
           (qs) => qs.$id === assignment.qsId
         );
+        const chapter = chaptersData.find((chapter) => chapter.classId === assignment.classId && chapter.chapterId === assignment.chapterId);
+        let chapterName = chapter.chapterName;
+        if (chapterName.toLowerCase() === 'overall') {
+          chapterName = chapterName + '(' + chapter.moduleName + ')'
+        }
         const assignmentObj = {
           set_id: assignment.qsId,
           set_name: questionSet.title,
-          class_name: "Class " + assignment.classId, // classesData.find((classs) => classs.classId === assignment.classId).name,
-          chapter_name: "",
+          cahpter_name: '',
+          class_name: "Class: " + classesData.find((classs) => classs.classId === assignment.classId).name,
+          chapter_name: chapterName,
           students: [],
         };
         const student = studentsData.find(
@@ -163,197 +189,6 @@ const Assignments = () => {
     });
 
     return formattedResponse;
-  };
-
-  const strecturedObj = {
-    "20-Jun-24": [
-      {
-        set_name: "set1",
-        class_name: "IX",
-        chapter_name: "Algebra Basics",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 85,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 18,
-          },
-          {
-            name: "gour manna",
-            score: 42,
-          },
-        ],
-      },
-      {
-        set_name: "set1",
-        class_name: "IX",
-        chapter_name: "Algebra Basics",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 16,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 66,
-          },
-          {
-            name: "gour manna",
-            score: 24,
-          },
-        ],
-      },
-    ],
-    "21-Jun-24": [
-      {
-        set_name: "set2",
-        class_name: "X",
-        chapter_name: "Geometry Fundamentals",
-        students: [
-          {
-            name: "sudipta jana",
-            score: 11,
-          },
-          {
-            name: "gour manna",
-            score: 53,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 82,
-          },
-        ],
-      },
-    ],
-    "22-Jun-24": [
-      {
-        set_name: "set3",
-        set_id: "123",
-        class_name: "XI",
-        chapter_name: "Calculus Introduction",
-        students: [
-          {
-            name: "Grace",
-            score: 66,
-          },
-          {
-            name: "sumitra jana",
-            score: 56,
-          },
-          {
-            name: "Ivy",
-            score: 24,
-          },
-        ],
-      },
-    ],
-    "23-Jun-24": [
-      {
-        set_name: "set4",
-        class_name: "XII",
-        chapter_name: "Statistics",
-        students: [
-          {
-            name: "sudipta jana",
-            score: 67,
-          },
-          {
-            name: "sumitra jana",
-            score: 87,
-          },
-          {
-            name: "gour manna",
-            score: 10,
-          },
-        ],
-      },
-    ],
-    "24-Jun-24": [
-      {
-        set_name: "set5",
-        class_name: "IX",
-        chapter_name: "Trigonometry",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 90,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 12,
-          },
-          {
-            name: "gour manna",
-            score: 94,
-          },
-        ],
-      },
-    ],
-    "25-Jun-24": [
-      {
-        set_name: "set5",
-        class_name: "IX",
-        chapter_name: "Trigonometry",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 90,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 12,
-          },
-          {
-            name: "gour manna",
-            score: 94,
-          },
-        ],
-      },
-    ],
-    "26-Jun-24": [
-      {
-        set_name: "set5",
-        class_name: "IX",
-        chapter_name: "Trigonometry",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 90,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 12,
-          },
-          {
-            name: "gour manna",
-            score: 94,
-          },
-        ],
-      },
-    ],
-    "27-Jun-24": [
-      {
-        set_name: "set5",
-        class_name: "IX",
-        chapter_name: "Trigonometry",
-        students: [
-          {
-            name: "sumitra jana",
-            score: 90,
-          },
-          {
-            name: "sudipta shaoo",
-            score: 12,
-          },
-          {
-            name: "gour manna",
-            score: 94,
-          },
-        ],
-      },
-    ],
   };
 
   const handelDateClick = (id) => {
@@ -405,7 +240,7 @@ const Assignments = () => {
                           className="border11 px-3 d-flex align-items-center justify-content-between"
                           htmlFor=""
                         >
-                          {ele.set_name} of {ele.class_name}
+                          {ele.set_name} of {ele.chapter_name} <br/> {ele.class_name}
                           {clickedSetId == key + ind ? (
                             <MdOutlineKeyboardArrowUp />
                           ) : (
