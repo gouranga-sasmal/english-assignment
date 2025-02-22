@@ -7,16 +7,16 @@ import { Query } from 'appwrite'
 import ErrorPage from '../EroorPage'
 
 const Chapters = () => {
-  const param = useParams()
-   const {getBookChapters} = useContext(context)
-  const [chapters , setChapters] = useState([])
+const param = useParams()
+const {getBookChapters} = useContext(context)
+const [chapters , setChapters] = useState([])
 const {classes}= param;
 const [loading , setLoading] = useState(true)
 
 
 const setChapter = async() =>{
   setLoading(true)
-  let res = await getBookChapters([Query.equal("classId", [JSON.parse(classes)])])
+  let res = await getBookChapters([Query.equal("classId", [JSON.parse(classes)]), Query.limit(100)]);
   setLoading(false)
   if(res && res.total > 0){
     setChapters(res.documents)
